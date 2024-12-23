@@ -1,32 +1,42 @@
-import mysql from 'mysql2';
+import { Sequelize } from 'sequelize';
 
+const db = process.env.DB || 'shop_tech';
+const username = process.env.DBUsername || 'shop_tech_user';
+const password = process.env.DBPass || '1234';
+const host = process.env.dbHost || 'localhost';
 
-class DB {
-    constructor() {
-        this.running = false;
-        this.connection = mysql.createConnection({
-            host: 'localhost' || process.env.DBHost,
-            user: 'root' || process.env.DBUser,
-            password: '1234' || process.env.DBPassword,
-            database: 'shop_tech' || process.env.DBName,
-            port: '3306'
-        });
+const sequelize = new Sequelize(db, username, password, {
+	host: host,
+	dialect: 'mysql'	
+});
 
-        this.connection.connect((err) => {
-            if (err) {
-                this.running = false;
-            }
-            this.running = true;
-        });
-    }
+let active = false;
 
-    active() {
-        return this.running;
-    }
+(async () => {
+  try {
+    await sequelize.authenticate();
+    active = true;
+    console.log('Database Connected');
+  } catch (error) {
+    active = false;
+    console.error('Cant connect to the database', error);
+  }
+})();
 
-    
+/** 
+ * Returns true if the database connection is running
+ */
+const DBActive = () => {
+  return active;
 }
 
-const DBClient = new DB();
+const syncDatabase = async () => {
+  try {
+    await sequelize.sync({alter: true});
+    console.log('All models were synchronised');
+  } catch (error) {
+    console.error("Failled to synchronize the models");
+  }
+}
 
-export default DBClient;
+export { sequelize, DBActive, syncDatabase };

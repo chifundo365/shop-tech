@@ -87,4 +87,3 @@ CREATE TABLE orders (
     FOREIGN KEY (agent_id) REFERENCES agents(id)      -- Foreign key referencing the agents table
 );
 
-EXIT;

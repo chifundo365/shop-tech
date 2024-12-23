@@ -1,8 +1,8 @@
-import DBClient from "../utils/db"
+import { DBActive } from "../utils/db.js"
 
 class AppController {
     static getStatus(req, res) {
-        res.status(200).json({db: DBClient.running});
+        res.status(200).json({db: DBActive()});
     }
 }
 
