@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "ALX_SE portifoli project",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-server": "nodemon --exec babel-node app.js"
