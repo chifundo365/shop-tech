@@ -1,5 +1,5 @@
 import { DataTypes, Model } from 'sequelize';
-import sequelize from '../utils/db.js';
+import { sequelize } from '../utils/db.js';
 
 
 class User extends Model {};
@@ -34,4 +34,4 @@ User.init(
   }
 );
 
-export default User;
+export { User };

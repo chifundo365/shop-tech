@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../utils/db.js';
+import { sequelize } from '../utils/db.js';
 
 
-const Shop = sequeelize.define(
+const Shop = sequelize.define(
     'Shop',
     {
       id: {
@@ -39,4 +39,4 @@ const Shop = sequeelize.define(
     {sequelize},
 );
 
-export default Shop;
+export { Shop };

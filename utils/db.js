@@ -10,7 +10,7 @@ const sequelize = new Sequelize(db, username, password, {
 	dialect: 'mysql'	
 });
 
-let active = false;
+let active = false;            
 
 (async () => {
   try {
@@ -19,24 +19,8 @@ let active = false;
     console.log('Database Connected');
   } catch (error) {
     active = false;
-    console.error('Cant connect to the database', error);
+    console.error('Can not connect to the database', error);
   }
 })();
 
-/** 
- * Returns true if the database connection is running
- */
-const DBActive = () => {
-  return active;
-}
-
-const syncDatabase = async () => {
-  try {
-    await sequelize.sync({alter: true});
-    console.log('All models were synchronised');
-  } catch (error) {
-    console.error("Failled to synchronize the models");
-  }
-}
-
-export { sequelize, DBActive, syncDatabase };
+export { sequelize } ;
