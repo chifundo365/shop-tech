@@ -9,13 +9,11 @@ const sequelize = new Sequelize(db, username, password, {
 	host: host,
 	dialect: 'mysql'	
 });
-
-let active = false;            
+         
 
 (async () => {
   try {
     await sequelize.authenticate();
-    active = true;
     console.log('Database Connected');
   } catch (error) {
     active = false;
@@ -23,4 +21,14 @@ let active = false;
   }
 })();
 
-export { sequelize } ;
+const active = async () => {
+  try {
+    await sequelize.authenticate();
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+export default sequelize  ;
+export { active };

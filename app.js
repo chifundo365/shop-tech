@@ -1,22 +1,18 @@
 import express from 'express';
-import router from './routes/index.js';
-import { sequelize } from './utils/db.js';
 import { registerModels } from './models/index.js';
-import { Shop } from './models/Shop.js';
+import Router from './routes/index.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(router);
+app.use(express.json());
+app.use(Router);
 
 
 
 const startServer = async () => {
   try {
-    await registerModels();
-
-    await sequelize.sync({alter: true});
-
+    //await registerModels();
     console.log("All models were succesfully connected");
 
     app.listen(port, () => {

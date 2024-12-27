@@ -1,89 +1,270 @@
--- shop-tech DDL for the entire database.
+-- MySQL dump 10.13  Distrib 9.0.0, for Win64 (x86_64)
+--
+-- Host: localhost    Database: shop_tech
+-- ------------------------------------------------------
+-- Server version	9.0.0
 
-DROP DATABASE IF EXISTS shop_tech;
-CREATE DATABASE IF NOT EXISTS shop_tech;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-use shop_tech;
+--
+-- Table structure for table `admins`
+--
 
-CREATE TABLE shops (
-    id INT AUTO_INCREMENT PRIMARY KEY,   -- Unique identifier for each shop
-    name VARCHAR(100) NOT NULL,          -- Shop's name
-    location VARCHAR(255) NOT NULL,              -- Shop's physical location
-    phone VARCHAR(255) NOT NULL,
-    country VARCHAR(100) NOT NULL        -- Country where the shop is located
-);
+DROP TABLE IF EXISTS `admins`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `admins` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(255) NOT NULL,
+  `last_name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `shop_id` int NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  KEY `shop_id` (`shop_id`),
+  CONSTRAINT `admins_ibfk_1` FOREIGN KEY (`shop_id`) REFERENCES `shops` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE admins (
-    id INT AUTO_INCREMENT PRIMARY KEY,          -- Unique identifier for each administrator
-    first_name VARCHAR(100) NOT NULL,           -- Administrator's first name
-    last_name VARCHAR(100) NOT NULL,            -- Administrator's last name
-    email VARCHAR(255) UNIQUE NOT NULL,         -- Administrator's email (must be unique)
-    phone VARCHAR(20) NOT NULL,                 -- Administrator's phone number
-    shop_id INT NOT NULL,                       -- Reference to the shop managed by the admin
-    FOREIGN KEY (shop_id) REFERENCES shops(id)  -- Foreign key linking to the shops table
-);
+--
+-- Dumping data for table `admins`
+--
 
-CREATE TABLE agents (
-    id INT AUTO_INCREMENT PRIMARY KEY,          -- Unique identifier for each agent
-    admin_id INT NOT NULL,                      -- Reference to the admin managing the agent
-    first_name VARCHAR(100) NOT NULL,           -- Agent's first name
-    last_name VARCHAR(100) NOT NULL,            -- Agent's last name
-    age INT CHECK (age >= 18),                  -- Agent's age (must be 18 or older)
-    email VARCHAR(255) UNIQUE NOT NULL,         -- Agent's email (unique for each agent)
-    phone VARCHAR(20) NOT NULL,                 -- Agent's phone number
-    residence VARCHAR(255),                     -- Agent's residence (address or area)
-    district VARCHAR(100),                      -- District of the agent
-    country VARCHAR(100) NOT NULL,              -- Country of the agent
-    FOREIGN KEY (admin_id) REFERENCES admins(id) -- Foreign key to an `admins` table
-);
+LOCK TABLES `admins` WRITE;
+/*!40000 ALTER TABLE `admins` DISABLE KEYS */;
+/*!40000 ALTER TABLE `admins` ENABLE KEYS */;
+UNLOCK TABLES;
 
-CREATE TABLE categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,   -- Unique identifier for each category
-    name VARCHAR(100) NOT NULL,          -- Name of the category
-    description TEXT                     -- Optional description of the category
-);
+--
+-- Table structure for table `agents`
+--
 
-CREATE TABLE products (
-    id INT AUTO_INCREMENT PRIMARY KEY,           -- Unique identifier for each product
-    name VARCHAR(100) NOT NULL,                  -- Name of the product
-    price DECIMAL(10, 2) NOT NULL,               -- Price of the product (e.g., 9999.99)
-    description TEXT,                            -- Optional description of the product
-    category_id INT NOT NULL,                    -- Reference to the category of the product
-    available BOOLEAN DEFAULT TRUE,              -- Whether the product is available (TRUE/FALSE)
-    stock_quantity INT DEFAULT 0,                -- Number of items in stock
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp for when the product was created
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Auto-update timestamp
-    FOREIGN KEY (category_id) REFERENCES categories(id) -- Foreign key linking to the categories table
-);
+DROP TABLE IF EXISTS `agents`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `agents` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(255) NOT NULL,
+  `last_name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `admin_id` int NOT NULL,
+  `residence` varchar(255) NOT NULL,
+  `district` varchar(255) NOT NULL,
+  `country` varchar(255) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  KEY `admin_id` (`admin_id`),
+  CONSTRAINT `agents_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `admins` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE product_images (
-    id INT AUTO_INCREMENT PRIMARY KEY,      -- Unique identifier for each image
-    product_id INT NOT NULL,                -- Foreign key referencing the product
-    image_url VARCHAR(255) NOT NULL,        -- URL of the image (stored on Google Drive)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp of image upload
-    FOREIGN KEY (product_id) REFERENCES products(id)  -- Foreign key linking to products table
-);
+--
+-- Dumping data for table `agents`
+--
 
-CREATE TABLE products_availability (
-    id INT AUTO_INCREMENT PRIMARY KEY,       -- Unique identifier for each record
-    product_id INT NOT NULL,                 -- Reference to the product
-    shop_id INT NOT NULL,                    -- Reference to the shop
-    stock_quantity INT DEFAULT 0,            -- Number of items available in stock for the product at the shop
-    FOREIGN KEY (product_id) REFERENCES products(id),  -- Foreign key referencing the products table
-    FOREIGN KEY (shop_id) REFERENCES shops(id)         -- Foreign key referencing the shops table
-);
+LOCK TABLES `agents` WRITE;
+/*!40000 ALTER TABLE `agents` DISABLE KEYS */;
+/*!40000 ALTER TABLE `agents` ENABLE KEYS */;
+UNLOCK TABLES;
 
-CREATE TABLE orders (
-    id INT AUTO_INCREMENT PRIMARY KEY,       -- Unique identifier for each order
-    customer_name VARCHAR(100) NOT NULL,     -- Customer's name
-    customer_phone VARCHAR(20) NOT NULL,     -- Customer's phone number
-    product_id INT NOT NULL,                 -- Reference to the product being ordered
-    quantity INT NOT NULL,                   -- Quantity of the product ordered
-    agent_id INT NOT NULL,                   -- Reference to the agent who handled the order
-    status VARCHAR(50) NOT NULL,             -- Status of the order (e.g., 'pending', 'completed', etc.)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp for when the order was created
-    notes TEXT,                              -- Optional notes about the order (e.g., special instructions)
-    FOREIGN KEY (product_id) REFERENCES products(id), -- Foreign key referencing the products table
-    FOREIGN KEY (agent_id) REFERENCES agents(id)      -- Foreign key referencing the agents table
-);
+--
+-- Table structure for table `categories`
+--
 
+DROP TABLE IF EXISTS `categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `categories` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `description` text,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `categories`
+--
+
+LOCK TABLES `categories` WRITE;
+/*!40000 ALTER TABLE `categories` DISABLE KEYS */;
+/*!40000 ALTER TABLE `categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `orders`
+--
+
+DROP TABLE IF EXISTS `orders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `orders` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `customer_name` varchar(255) NOT NULL,
+  `customer_phone` varchar(20) NOT NULL,
+  `quantity` int DEFAULT NULL,
+  `notes` text,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `product_id` int DEFAULT NULL,
+  `agent_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  KEY `agent_id` (`agent_id`),
+  CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`agent_id`) REFERENCES `agents` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `orders`
+--
+
+LOCK TABLES `orders` WRITE;
+/*!40000 ALTER TABLE `orders` DISABLE KEYS */;
+/*!40000 ALTER TABLE `orders` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `product_availability`
+--
+
+DROP TABLE IF EXISTS `product_availability`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `product_availability` (
+  `stock_quantity` int DEFAULT '0',
+  `product_id` int NOT NULL,
+  `shop_id` int NOT NULL,
+  PRIMARY KEY (`product_id`,`shop_id`),
+  KEY `shop_id` (`shop_id`),
+  CONSTRAINT `product_availability_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `product_availability_ibfk_2` FOREIGN KEY (`shop_id`) REFERENCES `shops` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `product_availability`
+--
+
+LOCK TABLES `product_availability` WRITE;
+/*!40000 ALTER TABLE `product_availability` DISABLE KEYS */;
+/*!40000 ALTER TABLE `product_availability` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `product_images`
+--
+
+DROP TABLE IF EXISTS `product_images`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `product_images` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `product_id` int NOT NULL,
+  `image_url` varchar(255) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  CONSTRAINT `product_images_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `product_images`
+--
+
+LOCK TABLES `product_images` WRITE;
+/*!40000 ALTER TABLE `product_images` DISABLE KEYS */;
+/*!40000 ALTER TABLE `product_images` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `products`
+--
+
+DROP TABLE IF EXISTS `products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `products` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `price` decimal(10,0) NOT NULL,
+  `description` text,
+  `category_id` int NOT NULL,
+  `available` tinyint(1) DEFAULT '1',
+  `stock_quantity` int DEFAULT '0',
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `category_id` (`category_id`),
+  CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `products`
+--
+
+LOCK TABLES `products` WRITE;
+/*!40000 ALTER TABLE `products` DISABLE KEYS */;
+/*!40000 ALTER TABLE `products` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `shops`
+--
+
+DROP TABLE IF EXISTS `shops`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `shops` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `location` varchar(255) NOT NULL,
+  `district` varchar(255) NOT NULL,
+  `country` varchar(255) NOT NULL,
+  `phone` int NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `shops`
+--
+
+LOCK TABLES `shops` WRITE;
+/*!40000 ALTER TABLE `shops` DISABLE KEYS */;
+/*!40000 ALTER TABLE `shops` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2024-12-26  8:21:14

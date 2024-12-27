@@ -1,9 +1,9 @@
-import { DataTypes } from 'sequelize';
-import { sequelize } from '../utils/db.js';
+import { DataTypes, Model } from 'sequelize';
+import sequelize  from '../utils/db.js';
 
+class Shop extends Model {};
 
-const Shop = sequelize.define(
-    'Shop',
+Shop.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -36,7 +36,10 @@ const Shop = sequelize.define(
         allowNull: false,              
       },
     },
-    {sequelize},
+    {sequelize,
+      tableName: 'shops',
+      timestamps: false,
+    },
 );
 
-export { Shop };
+export default Shop;
