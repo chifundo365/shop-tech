@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "clear && supervisor app.js",
+    "dev": "clear && supervisor --exec babel app.js",
     "start": "node app.js"
   },
   "repository": {

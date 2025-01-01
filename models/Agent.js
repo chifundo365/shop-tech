@@ -3,40 +3,43 @@ import sequelize from "../utils/db.js";
 import User from "./User.js";
 import Admin from "./Admin.js";
 
-class Agent extends Model {};
+class Agent extends Model {}
 
 Agent.init(
-    {
-        ...User.fields(),
+  {
+    ...User.fields(),
 
-        admin_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: Admin,
-                key: 'id',            }
-        },
-
-        residence: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        district: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        country: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        }
-
+    admin_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Admin,
+        key: "id"
+      }
     },
-    { sequelize },
-)
 
-Agent.belongsTo(Admin, {foreignKey: 'admin_id'});
-Admin.hasOne(Agent, {foreignKey: 'admin_id'});
+    residence: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+
+    district: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+
+    country: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
+  },
+  {
+    sequelize,
+    timestamps: false
+  }
+);
+
+Agent.belongsTo(Admin, { foreignKey: "admin_id" });
+Admin.hasOne(Agent, { foreignKey: "admin_id" });
 
 export default Agent;
