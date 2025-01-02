@@ -3,20 +3,26 @@ import AppResponse from "../utils/appResponse.js";
 import Validate from "../utils/validate.js";
 
 class AdminController {
-  static async getAdmin(req, res, next) {
+  static getAdmin(req, res, next) {
     const id = Number(req.params.id);
+    const showShop = req.query.show_shop === "true" ? true : false;
     if (id) {
-      Admin.findOne({
-        where: { id },
-        include: [
-          {
-            model: Shop
-          }
-        ]
-      })
+      let options;
+      if (showShop === true) {
+        options = {
+          where: { id },
+          include: [{ model: Shop }],
+          raw: true,
+          nest: true
+        };
+      } else {
+        options = { where: { id }, raw: true };
+      }
+      Admin.findOne(options)
         .then(async admin => {
           if (admin) {
-            res.status(200).json(AppResponse.AppSucess(200, "Success", admin));
+            const { password, ..._admin } = admin;
+            res.status(200).json(AppResponse.AppSucess(200, "Success", _admin));
           } else {
             next({
               type: "NOT_FOUND_ERROR",
@@ -36,15 +42,21 @@ class AdminController {
     }
   }
 
-  static async getAdmins(req, res, next) {
-    Admin.findAll({
-      include: [{ model: Shop }],
-      raw: true,
-      nest: true
-    })
+  static getAdmins(req, res, next) {
+    const showShop = req.query.show_shop === "true" ? true : false;
+    let options;
+    if (showShop === true) {
+      options = {
+        include: [{ model: Shop }],
+        raw: true,
+        nest: true
+      };
+    } else {
+      options = { raw: true };
+    }
+    Admin.findAll(options)
       .then(admins => {
         if (admins) {
-          console.log(admins);
           const adminsData = [];
           for (let admin of admins) {
             let { password, ...filterd } = admin;
@@ -55,7 +67,7 @@ class AdminController {
             .status(200)
             .json(AppResponse.AppSucess(200, "success", adminsData));
         } else {
-          next({ type: "NOT_FOUND_ERROR", message: "Admins not found" });
+          next({ type: "NOT_FOUND_ERROR", message: "Not found" });
         }
       })
       .catch(error => {
@@ -63,7 +75,7 @@ class AdminController {
       });
   }
 
-  static async createAdmin(req, res, next) {
+  static createAdmin(req, res, next) {
     const fieldValues = req.body;
 
     const requiredFields = [
@@ -80,9 +92,7 @@ class AdminController {
       requiredFields
     );
 
-    console.log(missingfields);
     if (missingfields) {
-      console.log("HERE >>>>>>>>>>>");
       next({
         message: "Missing required fields",
         type: "VALIDATION_ERROR",
@@ -137,7 +147,15 @@ class AdminController {
             where: { id }
           })
             .then(data => {
-              res.status(200).json(AppResponse.AppSucess(200, "success", data));
+              if (data[0]) {
+                res
+                  .status(201)
+                  .json(AppResponse.AppSucess(200, "success", data[0]));
+              } else {
+                res
+                  .status(200)
+                  .json(AppResponse.AppSucess(200, "already updated", data[0]));
+              }
             })
             .catch(error => {
               next({ type: "SERVER_ERROR" });
