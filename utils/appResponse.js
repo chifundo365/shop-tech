@@ -20,7 +20,7 @@ class AppResponse {
     };
   }
 
-  static AppSucess(statusCode, message, data) {
+  static AppSuccess(statusCode, message, data) {
     return {
       statusCode,
       message,

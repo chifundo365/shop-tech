@@ -1,6 +1,7 @@
 import { Admin, Shop } from "../models/index.js";
 import AppResponse from "../utils/appResponse.js";
 import Validate from "../utils/validate.js";
+import Hash from "../utils/hash.js";
 
 class AdminController {
   static getAdmin(req, res, next) {
@@ -22,7 +23,9 @@ class AdminController {
         .then(async admin => {
           if (admin) {
             const { password, ..._admin } = admin;
-            res.status(200).json(AppResponse.AppSucess(200, "Success", _admin));
+            res
+              .status(200)
+              .json(AppResponse.AppSuccess(200, "Success", _admin));
           } else {
             next({
               type: "NOT_FOUND_ERROR",
@@ -37,7 +40,7 @@ class AdminController {
     } else {
       next({
         type: "VALIDATION_ERROR",
-        details: { id: ["id should be  an interger"] }
+        details: { fields: { id: "id should be an interger" } }
       });
     }
   }
@@ -65,7 +68,7 @@ class AdminController {
 
           res
             .status(200)
-            .json(AppResponse.AppSucess(200, "success", adminsData));
+            .json(AppResponse.AppSuccess(200, "success", adminsData));
         } else {
           next({ type: "NOT_FOUND_ERROR", message: "Not found" });
         }
@@ -75,7 +78,7 @@ class AdminController {
       });
   }
 
-  static createAdmin(req, res, next) {
+  static async createAdmin(req, res, next) {
     const fieldValues = req.body;
 
     const requiredFields = [
@@ -87,25 +90,49 @@ class AdminController {
       "shop_id"
     ];
 
-    const missingfields = Validate.requiredFields(
-      Object.keys(fieldValues),
-      requiredFields
-    );
+    const missingFields = Validate.requiredFields(fieldValues, requiredFields);
 
-    if (missingfields) {
+    if (Object.keys(missingFields).length) {
       next({
-        message: "Missing required fields",
+        message: "Missing required field(s)",
         type: "VALIDATION_ERROR",
-        details: missingfields
+        details: { fields: missingFields }
       });
     } else {
-      Admin.create(fieldValues)
-        .then(admin => {
-          res.status(200).json(AppResponse.AppSucess(200, "sucesss", admin));
-        })
-        .catch(error => {
-          next(error);
-        });
+      const userExists = await Admin.findOne({
+        where: {
+          email: fieldValues.email
+        }
+      });
+
+      if (userExists) {
+        res
+          .status(409)
+          .json(
+            AppResponse.AppError(
+              "ARLEADY_EXIST",
+              409,
+              "User already exists",
+              "USER_EXIST",
+              { email: "user with this email already exists" }
+            )
+          );
+      } else {
+        fieldValues.password = await Hash.createHash(fieldValues.password);
+        Admin.create(fieldValues, { raw: true })
+          .then(admin => {
+            admin = admin.toJSON();
+
+            const { password, created_at, updated_at, ..._admin } = admin;
+
+            res
+              .status(200)
+              .json(AppResponse.AppSuccess(200, "success", _admin));
+          })
+          .catch(error => {
+            next(error);
+          });
+      }
     }
   }
 
@@ -120,7 +147,7 @@ class AdminController {
           if (removed) {
             res
               .status(200)
-              .json(AppResponse.AppSucess(200, "success", removed));
+              .json(AppResponse.AppSuccess(200, "success", removed));
           } else {
             next({
               type: "NOT_FOUND_ERROR",
@@ -139,34 +166,51 @@ class AdminController {
   static updateAdmin(req, res, next) {
     const id = Number(req.params.id);
     const fieldsValues = req.body;
-
+    const emptyfields = Validate.requiredFields(
+      fieldsValues,
+      Object.keys(fieldsValues)
+    );
     if (id) {
-      Admin.findByPk(id).then(admin => {
-        if (admin) {
-          Admin.update(fieldsValues, {
-            where: { id }
-          })
-            .then(data => {
-              if (data[0]) {
-                res
-                  .status(201)
-                  .json(AppResponse.AppSucess(200, "success", data[0]));
-              } else {
-                res
-                  .status(200)
-                  .json(AppResponse.AppSucess(200, "already updated", data[0]));
-              }
+      if (!Object.keys(emptyfields).length) {
+        Admin.findByPk(id).then(admin => {
+          if (admin) {
+            if (Object.keys(fieldsValues).includes("password")) {
+              fieldsValues.password = Hash.createHash(fieldsValues.password);
+            }
+            Admin.update(fieldsValues, {
+              where: { id }
             })
-            .catch(error => {
-              next({ type: "SERVER_ERROR" });
+              .then(data => {
+                if (data[0]) {
+                  res
+                    .status(201)
+                    .json(AppResponse.AppSuccess(200, "success", data[0]));
+                } else {
+                  res
+                    .status(200)
+                    .json(
+                      AppResponse.AppSuccess(200, "already updated", data[0])
+                    );
+                }
+              })
+              .catch(error => {
+                next({ type: "SERVER_ERROR" });
+              });
+          } else {
+            next({
+              type: "NOT_FOUND_ERROR",
+              message: `Could not update admin with id ${id}, Not Found`
             });
-        } else {
-          next({
-            type: "NOT_FOUND_ERROR",
-            message: `Could not update admin with id ${id}, Not Found`
-          });
-        }
-      });
+          }
+        });
+      } else {
+        const error = {
+          type: "VALIDATION_ERROR",
+          message: "Empty fields",
+          errorDetails: { fields: emptyfields }
+        };
+        next();
+      }
     } else {
       next({ type: "VALIDATION_ERROR", message: "Id must be an integer" });
     }

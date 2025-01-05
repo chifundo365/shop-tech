@@ -7,11 +7,12 @@ class Validate {
      */
   static requiredFields(fields, required) {
     const missing = {};
-    if (Array.isArray(fields)) {
-      for (let r of required) {
-        if (!fields.includes(r)) {
-          missing[r] = "Field is required";
-        }
+
+    for (let r of required) {
+      if (!Object.keys(fields).includes(r)) {
+        missing[r] = "Field is missing";
+      } else if (fields[r] === "") {
+        missing[r] = "Field can't be empty";
       }
     }
 

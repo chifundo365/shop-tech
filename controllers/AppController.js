@@ -9,7 +9,6 @@ class AppController {
   }
 
   static ErrorResponse(err, req, res, next) {
-    console.error(err);
     if (err.type === "SERVER_ERROR") {
       res.status(500).json(
         AppResponse.AppError(

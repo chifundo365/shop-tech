@@ -13,7 +13,7 @@ class ShopController {
       });
 
       if (shop !== null) {
-        res.status(200).json(AppResponse.AppSucess(200, "sucess", shop));
+        res.status(200).json(AppResponse.AppSuccess(200, "success", shop));
       } else {
         res
           .status(404)
@@ -44,7 +44,7 @@ class ShopController {
 
   static async getShops(req, res) {
     const shops = await Shop.findAll();
-    res.status(200).json(AppResponse.AppSucess(200, "success", shops));
+    res.status(200).json(AppResponse.AppSuccess(200, "success", shops));
   }
 
   static async createShop(req, res) {
@@ -116,7 +116,7 @@ class ShopController {
 
         res
           .status(201)
-          .json(AppResponse.AppSucess(201, "Created", shop.toJSON()));
+          .json(AppResponse.AppSuccess(201, "Created", shop.toJSON()));
       } catch (error) {
         console.error("Can not create a record in table <shops>:", error);
         res
@@ -145,7 +145,7 @@ class ShopController {
       });
 
       if (shop) {
-        res.status(200).json(AppResponse.AppSucess(200, "sucess", shop));
+        res.status(200).json(AppResponse.AppSuccess(200, "success", shop));
       } else {
         res
           .status(404)
@@ -194,7 +194,7 @@ class ShopController {
           .then(data => {
             res
               .status(200)
-              .json(AppResponse.AppSucess(200, "sucess", shopExists));
+              .json(AppResponse.AppSuccess(200, "success", shopExists));
           })
           .catch(error => {
             res
