@@ -178,7 +178,6 @@ class AgentController {
     );
 
     if (id) {
-      console.log(emptyfields);
       if (Object.keys(emptyfields).length === 0) {
         Agent.findByPk(id).then(async admin => {
           if (admin) {

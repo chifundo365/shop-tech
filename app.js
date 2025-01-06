@@ -1,7 +1,6 @@
 import express from "express";
-import { registerModels } from "./models/index.js";
+import { Product, Category, registerModels } from "./models/index.js";
 import Router from "./routes/index.js";
-import { Admin } from "./models/index.js";
 
 const app = express();
 const port = process.env.PORT || 5000;
