@@ -1,6 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../utils/db.js";
 import Category from "./Category.js";
+import Admin from "./Admin.js";
 
 class Product extends Model {}
 
@@ -27,16 +28,6 @@ Product.init(
         model: Category,
         key: "id"
       }
-    },
-
-    available: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
-    },
-
-    stock_quantity: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0
     }
   },
   {
@@ -46,6 +37,7 @@ Product.init(
   }
 );
 
+Product.belongsTo(Admin, { foreignKey: "admin_id" });
 Product.belongsTo(Category, { foreignKey: "category_id" });
 Category.hasMany(Product, { foreignKey: "category_id" });
 

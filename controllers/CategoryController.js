@@ -1,8 +1,6 @@
-import { raw } from "mysql2";
 import { Category, Product } from "../models/index.js";
 import Validate from "../utils/validate.js";
 import AppResponse from "../utils/appResponse.js";
-import { where } from "sequelize";
 
 class CategoryController {
   static createCategory(req, res, next) {
