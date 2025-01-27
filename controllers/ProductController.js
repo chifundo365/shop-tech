@@ -1,34 +1,127 @@
-import { Product, ProductImage } from "../models/index.js";
+import sequelize from "../utils/db.js";
+import { Product, ProductImage, ProductAvailability } from "../models/index.js";
 import AppResponse from "../utils/appResponse.js";
 import Validate from "../utils/validate.js";
+import Drive from "../utils/drive.js";
 
 class ProductController {
   static async createProduct(req, res, next) {
-    const product = req.body;
+    try {
+      const { body, files } = req;
 
-    const missingfields = Validate.requiredFields(product, [
-      "name",
-      "price",
-      "description",
-      "category_id"
-    ]);
+      console.log(body);
+      console.log(files);
 
-    if (Object.keys(missingfields).length > 0) {
-      next({
-        type: "VALIDATION_ERROR",
-        details: { fields: missingfields }
-      });
-    } else {
-      Product.create(product)
-        .then(product => {
-          res
-            .status(201)
-            .json(AppResponse.AppSuccess(201, "Product created", product));
-        })
-        .catch(error => {
-          error.type = "SERVER_ERROR";
-          next(error);
+      // Validate required fields
+      const requiredFields = [
+        "name",
+        "price",
+        "description",
+        "category_id",
+        "availability"
+      ];
+      const missingFields = Validate.requiredFields(body, requiredFields);
+
+      if (Object.keys(missingFields).length > 0) {
+        return next({
+          type: "VALIDATION_ERROR",
+          message: "Missing required fields",
+          details: { fields: missingFields },
+          status: 400
         });
+      }
+
+      // Parse `availability` field (JSON string) into an object
+      const availability = JSON.parse(body.availability || "[]");
+      if (!Array.isArray(availability) || availability.length === 0) {
+        return next({
+          type: "VALIDATION_ERROR",
+          message: "Availability information is required and must be an array.",
+          details: { field: "availability" },
+          status: 400
+        });
+      }
+
+      // Validate and upload images to Google Drive
+      const uploadedImages = [];
+      if (files && files.length > 0) {
+        for (const file of files) {
+          const result = await Drive.uploadFile(
+            file,
+            "1BYviSoWDR_1czCvWmRzcmwSRgeon-kzp"
+          );
+
+          const data = result.data;
+          uploadedImages.push({
+            image_url: data.thumbnailLink,
+            image_id: data.id,
+            image_drive_url: data.webViewLink,
+            download_url: data.webContentLink
+          });
+        }
+
+        console.log(uploadedImages[0]);
+
+        uploadedImages[0].is_primary = true;
+
+        if (uploadedImages.length === 0) {
+          return next({
+            type: "VALIDATION_ERROR",
+            message: "Failed to upload images.",
+            status: 400
+          });
+        }
+      }
+
+      // Transaction for product creation
+      const product = await sequelize.transaction(async t => {
+        // Create Product
+        const createdProduct = await Product.create(
+          {
+            name: body.name,
+            price: body.price,
+            description: body.description,
+            category_id: body.category_id
+          },
+          { transaction: t }
+        );
+
+        // Save Product Availability
+        const availabilityEntries = availability.map(entry => ({
+          ...entry,
+          product_id: createdProduct.id
+        }));
+
+        console.log(availabilityEntries);
+        await ProductAvailability.bulkCreate(availabilityEntries, {
+          transaction: t
+        });
+
+        // Save Product Images
+        if (uploadedImages.length > 0) {
+          const imageEntries = uploadedImages.map(image => ({
+            ...image,
+            product_id: createdProduct.id
+          }));
+          await ProductImage.bulkCreate(imageEntries, { transaction: t });
+        }
+
+        return createdProduct;
+      });
+
+      // Respond with the created product
+      return res.status(201).json({
+        success: true,
+        message: "Product created successfully",
+        data: product
+      });
+    } catch (error) {
+      next({
+        type: "SERVER_ERROR",
+        message: "An error occurred while creating the product",
+        details: error.message,
+        status: 500
+      });
     }
   }
 
@@ -38,7 +131,8 @@ class ProductController {
 
     if (show_images) {
       options = {
-        include: [{ model: ProductImage }]
+        include: [{ model: ProductImage }],
+        include: [{ model: ProductAvailability }]
       };
     } else {
       options = {

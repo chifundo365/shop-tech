@@ -15,9 +15,31 @@ ProductImage.init(
       }
     },
 
+    image_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
+
     image_url: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+
+    image_drive_url: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+
+    download_url: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+
+    is_primary: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: false
     }
   },
   {
