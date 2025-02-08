@@ -1,5 +1,10 @@
 import sequelize from "../utils/db.js";
-import { Product, ProductImage, ProductAvailability } from "../models/index.js";
+import {
+  Product,
+  ProductImage,
+  ProductAvailability,
+  Shop
+} from "../models/index.js";
 import AppResponse from "../utils/appResponse.js";
 import Validate from "../utils/validate.js";
 import Drive from "../utils/drive.js";
@@ -9,7 +14,6 @@ class ProductController {
     try {
       const { body, files } = req;
 
-      console.log(body);
       console.log(files);
 
       // Validate required fields
@@ -45,11 +49,21 @@ class ProductController {
       // Validate and upload images to Google Drive
       const uploadedImages = [];
       if (files && files.length > 0) {
+        let result;
         for (const file of files) {
-          const result = await Drive.uploadFile(
-            file,
-            "1BYviSoWDR_1czCvWmRzcmwSRgeon-kzp"
-          );
+          console.log(file);
+          if (file.mimetype.split("/")[0] !== "image") {
+            next({
+              type: "VALIDATION_ERROR",
+              message: "file is not an image",
+              details: { images: `${file.originalname} is not an image` }
+            });
+          } else {
+            result = await Drive.uploadFile(
+              file,
+              "1BYviSoWDR_1czCvWmRzcmwSRgeon-kzp"
+            );
+          }
 
           const data = result.data;
           uploadedImages.push({
@@ -60,8 +74,6 @@ class ProductController {
           });
         }
 
-        console.log(uploadedImages[0]);
-
         uploadedImages[0].is_primary = true;
 
         if (uploadedImages.length === 0) {
@@ -71,6 +83,8 @@ class ProductController {
             status: 400
           });
         }
+      } else {
+        next({ type: "VALIDATION_ERROR", message: "Missing product images" });
       }
 
       // Transaction for product creation
@@ -92,7 +106,6 @@ class ProductController {
           product_id: createdProduct.id
         }));
 
-        console.log(availabilityEntries);
         await ProductAvailability.bulkCreate(availabilityEntries, {
           transaction: t
         });
@@ -109,11 +122,21 @@ class ProductController {
         return createdProduct;
       });
 
-      // Respond with the created product
+      const productWithDetails = await Product.findByPk(product.id, {
+        include: [
+          {
+            model: ProductImage
+          },
+          {
+            model: Shop,
+            through: { attributes: ["shop_id", "stock_quantity"] }
+          }
+        ]
+      });
       return res.status(201).json({
         success: true,
         message: "Product created successfully",
-        data: product
+        data: productWithDetails
       });
     } catch (error) {
       next({
@@ -126,17 +149,21 @@ class ProductController {
   }
 
   static getProducts(req, res, next) {
-    const show_images = req.query.show_images === "true" ? true : false;
+    const show_shop = req.query.show_shop === "true" ? true : false;
     let options = {};
-
-    if (show_images) {
+    if (show_shop) {
       options = {
-        include: [{ model: ProductImage }],
-        include: [{ model: ProductAvailability }]
+        include: [
+          { model: ProductImage },
+          {
+            model: Shop,
+            through: { attributes: ["shop_id", "stock_quantity"] }
+          }
+        ]
       };
     } else {
       options = {
-        raw: true
+        include: [{ model: ProductImage }]
       };
     }
     Product.findAll(options)
@@ -146,7 +173,7 @@ class ProductController {
             .status(200)
             .json(AppResponse.AppSuccess(200, "success", products));
         } else {
-          res.status(404).json(AppResponse.AppError(404, "No products found"));
+          next({ type: "NOT_FOUND_ERROR", message: "No products found" });
         }
       })
       .catch(error => {
@@ -157,16 +184,22 @@ class ProductController {
 
   static getProduct(req, res, next) {
     const { id } = req.params;
-    const show_images = req.query.show_images === "true" ? true : false;
+    const show_shop = req.query.show_shop === "true" ? true : false;
     let options = {};
 
-    if (show_images) {
+    if (show_shop) {
       options = {
-        include: [{ model: ProductImage }]
+        include: [
+          { model: ProductImage },
+          {
+            model: Shop,
+            through: { attributes: ["shop_id", "stock_quantity"] }
+          }
+        ]
       };
     } else {
       options = {
-        raw: true
+        include: [{ model: ProductImage }]
       };
     }
 

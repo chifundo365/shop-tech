@@ -22,13 +22,15 @@ ProductAvailability.init(
 Product.belongsToMany(Shop, {
   through: ProductAvailability,
   foreignKey: "product_id",
-  otherKey: "shop_id"
+  otherKey: "shop_id",
+  onDelete: "CASCADE"
 });
 
 Shop.belongsToMany(Product, {
   through: ProductAvailability,
   foreignKey: "shop_id",
-  otherKey: "product_id"
+  otherKey: "product_id",
+  onDelete: "CASCADE"
 });
 
 ProductAvailability.belongsTo(Product, {

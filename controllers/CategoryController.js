@@ -1,4 +1,4 @@
-import { Category, Product } from "../models/index.js";
+import { Category, Product, ProductImage } from "../models/index.js";
 import Validate from "../utils/validate.js";
 import AppResponse from "../utils/appResponse.js";
 
@@ -41,14 +41,9 @@ class CategoryController {
   static getCategories(req, res, next) {
     const show_products = req.query.show_products === "true" ? true : false;
     let options = {};
-
     if (show_products) {
       options = {
-        include: [{ model: Product }]
-      };
-    } else {
-      options = {
-        raw: true
+        include: [{ model: Product, include: [{ model: ProductImage }] }]
       };
     }
     Category.findAll(options)
@@ -78,7 +73,7 @@ class CategoryController {
       if (show_products) {
         options = {
           where: id,
-          include: [{ model: Product }]
+          include: [{ model: Product, include: [{ model: ProductImage }] }]
         };
       } else {
         options = {

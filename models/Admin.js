@@ -15,6 +15,11 @@ Admin.init(
         model: Shop,
         key: "id"
       }
+    },
+    role: {
+      type: DataTypes.STRING,
+      defaultValue: "admin",
+      allowNull: false
     }
   },
   {

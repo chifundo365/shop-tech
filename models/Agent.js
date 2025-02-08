@@ -18,6 +18,12 @@ Agent.init(
       }
     },
 
+    role: {
+      type: DataTypes.STRING,
+      defaultValue: "agent",
+      allowNull: false
+    },
+
     residence: {
       type: DataTypes.STRING,
       allowNull: false

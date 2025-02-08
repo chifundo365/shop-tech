@@ -1,13 +1,13 @@
 import { Sequelize } from "sequelize";
 
-const db = process.env.DB || "shop_tech";
-const username = process.env.DBUsername || "shop_tech_user";
-const password = process.env.DBPass || "1234";
-const host = process.env.dbHost || "localhost";
+const db = process.env.DB_NAME;
+const username = process.env.DB_USERNAME;
+const password = process.env.DB_PASSWORD;
+const host = process.env.DB_HOSTNAME;
 
 const sequelize = new Sequelize(db, username, password, {
   host: host,
-  dialect: "mysql"
+  dialect: process.env.DB_DIALECT
 });
 
 (async () => {
