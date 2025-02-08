@@ -1,0 +1,34 @@
+{
+  "name": "shop-tech",
+  "version": "1.0.0",
+  "description": "ALX_SE portifoli project",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "clear && supervisor --exec babel app.js",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chifundo365/shop-tech.git"
+  },
+  "author": "chifundo biziweck",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chifundo365/shop-tech/issues"
+  },
+  "homepage": "https://github.com/chifundo365/shop-tech#readme",
+  "dependencies": {
+    "@babel/cli": "^7.26.4",
+    "@babel/core": "^7.26.0",
+    "@babel/node": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.2",
+    "mysql2": "^3.11.5",
+    "nodemon": "^3.1.9",
+    "sequelize": "^6.37.5",
+    "supervisor": "^0.12.0"
+  }
+}
