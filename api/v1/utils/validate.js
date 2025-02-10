@@ -10,7 +10,7 @@ class Validate {
 
     for (let r of required) {
       if (!Object.keys(fields).includes(r)) {
-        missing[r] = "Field is missing";
+        missing[r] = "Field is required";
       } else if (fields[r] === "") {
         missing[r] = "Field can't be empty";
       }

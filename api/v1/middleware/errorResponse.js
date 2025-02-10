@@ -1,7 +1,7 @@
 import AppResponse from "../utils/appResponse.js";
 
 const errorResponse = (err, req, res, next) => {
-  if (err.type === "SERVER_ERROR") {
+  if (err.status === 500 || err.type === "SERVER_ERROR") {
     res.status(500).json(
       AppResponse.AppError(
         "ServerError",
@@ -13,7 +13,7 @@ const errorResponse = (err, req, res, next) => {
         }
       )
     );
-  } else if (err.type === "VALIDATION_ERROR") {
+  } else if (err.status === 400 || err.type === "VALIDATION_ERROR") {
     res
       .status(400)
       .json(
@@ -25,7 +25,7 @@ const errorResponse = (err, req, res, next) => {
           err.details || { error: "Failed to validate your request" }
         )
       );
-  } else if (err.type == "NOT_FOUND_ERROR") {
+  } else if (err.status === 404 || err.type == "NOT_FOUND_ERROR") {
     res
       .status(404)
       .json(
@@ -37,8 +37,20 @@ const errorResponse = (err, req, res, next) => {
           err.details || { error: "Requested resource not found" }
         )
       );
-  } else {
-    next();
+  } else if (err.status === 401 || err.type === "UNAUTHORIZED_ERROR") {
+    res
+      .status(401)
+      .json(
+        AppResponse.AppError(
+          "UnauthorizedError",
+          401,
+          err.message || "Unauthorized to access the resource",
+          "UNAUTHROIZED_ERROR",
+          err.details || {
+            error: "Not authorized to access the requested resource"
+          }
+        )
+      );
   }
 };
 

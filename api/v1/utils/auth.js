@@ -30,6 +30,15 @@ class Auth {
       return null;
     }
   }
+
+  static verifyRefreshToken(token) {
+    try {
+      return jwt.verify(token, process.env.REFRESH_TOKEN_PRIVATE_KEY);
+    } catch (error) {
+      console.error("Error verifying token:", error);
+      return null;
+    }
+  }
 }
 
 export default Auth;

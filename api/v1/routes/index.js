@@ -6,6 +6,7 @@ import AgentRoutes from "../routes/agent.js";
 import CategoryRoutes from "../routes/category.js";
 import ProductRoutes from "../routes/product.js";
 import OrderRoutes from "../routes/order.js";
+import refreshTokenRoute from "../routes/refreshToken.js";
 import loginRoute from "../routes/login.js";
 import AppController from "../controllers/AppController.js";
 
@@ -18,6 +19,7 @@ Router.use("/categories", CategoryRoutes);
 Router.use("/products", ProductRoutes);
 Router.use("/orders", OrderRoutes);
 Router.use("/login", loginRoute);
+Router.use("/refresh-token", refreshTokenRoute);
 
 Router.get("/status", AppController.getStatus);
 
