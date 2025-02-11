@@ -59,7 +59,7 @@ class AdminController {
     }
     Admin.findAll(options)
       .then(admins => {
-        if (admins) {
+        if (admins.length) {
           const adminsData = [];
           for (let admin of admins) {
             let { password, ...filterd } = admin;

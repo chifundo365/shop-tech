@@ -1,5 +1,6 @@
 import { Shop } from "../models/index.js";
 import AppResponse from "../utils/appResponse.js";
+import Validate from '../utils/validate.js'
 
 class ShopController {
   static async getShop(req, res) {
@@ -42,74 +43,22 @@ class ShopController {
     }
   }
 
-  static async getShops(req, res) {
+  static async getShops(req, res, next) {
     const shops = await Shop.findAll();
-    res.status(200).json(AppResponse.AppSuccess(200, "success", shops));
+    if (!shops.length) {
+      next({status:404, message: 'Shops not found'})
+    } else {
+      res.status(200).json(AppResponse.AppSuccess(200, "success", shops));
+    }
   }
 
-  static async createShop(req, res) {
+  static async createShop(req, res, next) {
     const fields = req.body;
 
-    if (!("name" in fields)) {
-      res
-        .status(400)
-        .json(
-          AppResponse.AppError(
-            "ValidationError",
-            400,
-            "Missing required field: name",
-            "MISSING_FIELD",
-            { name: ["Field is required"] }
-          )
-        );
-    } else if (!("location" in fields)) {
-      res
-        .status(400)
-        .json(
-          AppResponse.AppError(
-            "ValidationError",
-            400,
-            "Missing required field: location",
-            "MISSING_FIELD",
-            { location: ["Field is required"] }
-          )
-        );
-    } else if (!("district" in fields)) {
-      res
-        .status(400)
-        .json(
-          AppResponse.AppError(
-            "ValidationError",
-            400,
-            "Missing required field: district",
-            "MISSING_FIELD",
-            { district: ["Field is required"] }
-          )
-        );
-    } else if (!("country" in fields)) {
-      res
-        .status(400)
-        .json(
-          AppResponse.AppError(
-            "ValidationError",
-            400,
-            "Missing required field: country",
-            "MISSING_FIELD",
-            { country: ["Field is required"] }
-          )
-        );
-    } else if (!("phone" in fields)) {
-      res
-        .status(400)
-        .json(
-          AppResponse.AppError(
-            "ValidationError",
-            400,
-            "Missing required field: phone",
-            "MISSING_FIELD",
-            { phone: ["Field is required"] }
-          )
-        );
+    const missing = Validate.requiredFields(fields, ['name', 'location', 'district', 'country', 'phone']);
+    
+    if (Object.keys(missing).length) {
+      next({status:400, details: missing})
     } else {
       try {
         const shop = await Shop.create(fields);

@@ -4,6 +4,7 @@ import redisService from '../utils/redis.js';
 const refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
+    console.log(refreshToken);
 
     if (!refreshToken) {
       res.status(400).json("Missing refresh token ");

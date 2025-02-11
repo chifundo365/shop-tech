@@ -1,4 +1,5 @@
 import "dotenv/config";
+console.log(process.env.DB_NAME);
 import express from "express";
 import { Product, Category, Shop, registerModels } from "./models/index.js";
 import Router from "./routes/index.js";
@@ -12,7 +13,7 @@ app.use("/api/v1/", Router);
 
 const startServer = async () => {
   try {
-    //await registerModels();
+    await registerModels();
 
     app.listen(port, () => {
       console.log(`Server running on port ${port}`);
