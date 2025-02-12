@@ -1,44 +1,42 @@
+# SHOP-TECH
 
-SHOP-TECH 
+A web app that lists all the tech gadgets and accessories to users based on shop location and other specifications.
 
-A web app that list all the tech-gadgets and accesories to users based on shop location and other specifications
+## Architecture:
+- Node.js/Express
+- MySQL with Sequelize ORM
+- Redis
+- Google Drive (File Storage)
+- Uses JWT for authentication and authorization
 
-> ARCHITECTURE:
-    > Nodejs/express
-    > mysql with sequelize orm
-    > redis
-    > google drive (file storage)
-    > uses JWT for authentication and authorization
+## Admin Features:
+- Create/delete agents
+- Upload products with their images
 
-> Allows admins:
-    > to create/delete  agents
-    > upload products with their images
->> agents:
-    > to download images and share links to other people of prodducts
-    > view sales their sales analytics
+## Agent Features:
+- Download images and share links to products
+- View their sales analytics
 
->> users
-    > download images and share link to products
+## User Features:
+- Download images and share links to products
 
->>**** Curently only the api is available:
-        > /api/v1
+### **Currently, only the API is available:**
+- `/api/v1`
 
-
+---
 
 ## Acknowledgements
 
- - [ALX LEANERS](alxafrica.com)
-
+- [ALX LEARNERS](https://alxafrica.com)
 
 ## Appendix
 
-The front end will soon be available
-it will be built with html, css and react
-
+The frontend will soon be available. It will be built with HTML, CSS, and React.
 
 ## Demo
-https://drive.google.com/file/d/1_VlHOhu94KyFj8tkX2WBFZBQzgR_1oms/view?usp=drive_link
+
+[Watch the demo](https://drive.google.com/file/d/1_VlHOhu94KyFj8tkX2WBFZBQzgR_1oms/view?usp=drive_link)
+
 ## Documentation
 
-[Documentation (Swagger)](https://api.shoptech.chifundo365.tech)
-
+[API Documentation (Swagger)](https://api.shoptech.chifundo365.tech)
