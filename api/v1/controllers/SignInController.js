@@ -3,7 +3,7 @@ import { Admin, Agent } from "../models/index.js";
 import AppResponse from "../utils/appResponse.js";
 import Hash from "../utils/hash.js";
 import Validate from "../utils/validate.js";
-import redisService from '../utils/redis.js'
+import redisService from "../utils/redis.js";
 
 const login = async (req, res, next) => {
   try {
@@ -53,7 +53,7 @@ const login = async (req, res, next) => {
       role
     });
 
-    await redisService.storeRefreshKey(user.id, refreshToken);
+    await redisService.saveRefreshToken(user.id, refreshToken);
 
     return res.json(
       AppResponse.AppSuccess(200, "token generated successfully", {

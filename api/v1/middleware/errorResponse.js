@@ -38,19 +38,29 @@ const errorResponse = (err, req, res, next) => {
         )
       );
   } else if (err.status === 401 || err.type === "UNAUTHORIZED_ERROR") {
-    res
-      .status(401)
-      .json(
-        AppResponse.AppError(
-          "UnauthorizedError",
-          401,
-          err.message || "Unauthorized to access the resource",
-          "UNAUTHROIZED_ERROR",
-          err.details || {
-            error: "Not authorized to access the requested resource"
-          }
-        )
-      );
+    res.status(401).json(
+      AppResponse.AppError(
+        "UnauthorizedError",
+        401,
+        err.message || "Unauthorized to access the resource",
+        "UNAUTHROIZED_ERROR",
+        err.details || {
+          error: "Not authorized to access the requested resource"
+        }
+      )
+    );
+  } else if (err.status === 403 || err.type === "FORBIDDEN_ERROR") {
+    res.status(401).json(
+      AppResponse.AppError(
+        "ForbiddenError",
+        403,
+        err.message || "Forbidden to access the resource",
+        "FORBIDDEN_ERROR",
+        err.details || {
+          error: "Forbidden to access the requested resource"
+        }
+      )
+    );
   }
 };
 

@@ -1,47 +1,50 @@
-import Redis from 'ioredis';
+import Redis from "ioredis";
 
 class RedisService {
   constructor() {
-    this.redis = new Redis;
+    this.redis = new Redis();
   }
 
-  async storeRefreshKey(userId, token) {
+  async saveRefreshToken(userId, token) {
     try {
-
       const key = `refresh_token:${userId}`;
-      await this.redis.setex(key,  (14 * 24 * 60 * 60), token)
+      await this.redis.setex(key, 14 * 24 * 60 * 60, token);
       return true;
-    } catch(err) {
-      console.log('Failed to store the refresh token in redis', err);
+    } catch (err) {
+      console.log("Failed to store the refresh token in redis", err);
       return false;
     }
   }
 
-
-
-  async getRefreshKey(userId) {
+  async getRefreshToken(userId) {
     try {
       const key = `refresh_token:${userId}`;
-      return await this.redis.get(key)
-    } catch(err) {
-      console.error('Can not get the key', err);
-      return null
+      return await this.redis.get(key);
+    } catch (err) {
+      console.error("Can not get the key", err);
+      return null;
     }
   }
 
+  async deleteRefreshtoken(userId) {
+    try {
+      const key = `refresh_token:${userId}`;
+      return await this.redis.del(key);
+    } catch (err) {
+      console.error("Can not delete the key", err);
+      return null;
+    }
+  }
 
   async redisStatus() {
     try {
       await this.redis.ping();
       return true;
-
-    } catch(err) {
-      console.err('Redis is not currently connected', err);
+    } catch (err) {
+      console.err("Redis is not currently connected", err);
       return false;
     }
   }
-
-
 }
 
 const redisService = new RedisService();

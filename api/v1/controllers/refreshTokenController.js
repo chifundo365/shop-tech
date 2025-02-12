@@ -1,31 +1,26 @@
 import Auth from "../utils/auth.js";
-import redisService from '../utils/redis.js';
+import redisService from "../utils/redis.js";
+import AppResponse from "../utils/appResponse.js";
 
 const refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
-    console.log(refreshToken);
 
     if (!refreshToken) {
-      res.status(400).json("Missing refresh token ");
+      next({ status: 400, message: "Refresh token is required" });
     } else {
       const user = Auth.verifyRefreshToken(refreshToken);
 
       if (!user) {
-        res.status(403).json("invalid refresh token");
+        next({ status: 403, message: "Invalid refresh token" });
       } else {
-        if (!redisService.getRefreshKey(user.id)) {
-          res.status(403).json('Refresh token is not stored in the system');
+        if (!await redisService.getRefreshToken(user.id)) {
+          next({ status: 403, message: "Invalid refresh token" });
         } else {
-          res
-            .status(200)
-            .json(
-              Auth.generateAccessToken({
-                id: user.id,
-                email: user.email,
-                role: user.role
-              })
-            );
+          const accessToken = Auth.generateAccessToken(user);
+          AppResponse.AppSuccess(200, "Token refreshed successfully", {
+            accessToken
+          });
         }
       }
     }
