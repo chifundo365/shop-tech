@@ -39,4 +39,4 @@ The frontend will soon be available. It will be built with HTML, CSS, and React.
 
 ## Documentation
 
-[API Documentation (Swagger)](https://api.shoptech.chifundo365.tech)
+[API Documentation (Swagger [in development ])](https://api.shoptech.chifundo365.tech)
